@@ -11,93 +11,145 @@ AWS.config.credentials = new AWS.CognitoIdentityCredentials({
 
 const db = new AWS.DynamoDB();
 
-export async function fetchWords(
+export async function checkSpelling(
   words: string[]
 ): Promise<SpellCheckResult> {
-  const results: number[] = await Promise.all(
+  const results = await fetchWords(words, true);
+
+  // any words with capital letters could potentially match
+  // suggestions tied to lowercase pk
+  const lowerCaseCandidates = Object.keys(results)
+    .filter(word => !results[word].isValid);
+
+  for(const word of lowerCaseCandidates) {
+    const lc = word.toLowerCase();
+
+    const suggestionCandidates = [lc];
+    if(lc.length > 1) {
+      suggestionCandidates.push(
+        ...deleteDistance(
+          1,
+          lc
+        )
+      );
+    }
+
+    console.log('suggestionCandidates1:', suggestionCandidates);
+
+    const suggestions = await fetchWords(suggestionCandidates, false);
+
+    for(const s in suggestions) {
+      const result = suggestions[s];
+
+      if(result.isValid) {
+        if(s === lc) {
+          (results[word] as { suggestions: string[]} ).suggestions.unshift(s);
+        }
+        else {
+          (results[word] as { suggestions: string[]} ).suggestions.push(s);
+        }
+      }
+      else {
+        (results[word] as { suggestions: string[]} ).suggestions.push(
+          ...result.suggestions
+        );
+      }
+    }
+
+    console.log('result:', word, (results[word] as { suggestions: string[]} ).suggestions);
+  }
+
+  return results;
+}
+
+export async function fetchWords(
+  words: string[],
+  exactMatch: boolean
+): Promise<SpellCheckResult> {
+  const results: AWS.DynamoDB.QueryOutput[] = await Promise.all(
     words.map(async word => {
-      const pk = hashKey(word);
+      const pk = word; //.toLowerCase(); // TODO: may need to be smarter than this, but it should catch all cases since words with capital letters also have spelling suggestions mapped to lower case misspelling
       const result = await db.query({
-        KeyConditionExpression: 'pk = :pk and sk = :sk',
-        ExpressionAttributeValues: {
-          ':pk': { S: pk },
-          ':sk': { S: word }
-        },
+        KeyConditionExpression: exactMatch
+          ? 'pk = :pk and sk = :sk'
+          : 'pk = :pk',
+        ExpressionAttributeValues: exactMatch
+          ? {
+            ':pk': { S: pk },
+            ':sk': { S: word }
+          }
+          : {
+            ':pk': { S: pk }
+          },
         ReturnConsumedCapacity: 'TOTAL',
         TableName: spellingWordsTable
       }).promise();
-      return result.Count || 0;
+      return result;
     })
   );
 
   const map = results.reduce((memo, cur, i) => {
-    memo[words[i]] = cur > 0
-      ? {
+    const items = cur.Items!.map(i => ({
+      pk: i.pk.S!,
+      sk: i.sk.S!
+    }));
+
+    if(items.find(item => item.sk === words[i])) {
+      memo[words[i]] = {
         isValid: true
-      }
-      : {
-        isValid: false,
-        suggestions: ['aaa', 'bbb', 'ccc']
       };
+    }
+    else {
+      const miss = memo[words[i]] = {
+        isValid: false,
+        suggestions: [] as string[]
+      };
+
+      items.forEach(item => {
+        miss.suggestions.push(item.sk);
+      });
+    }
 
     return memo;
   }, {} as SpellCheckResult);
 
+  console.log(map);
+
   return map;
 }
 
-function hashKey(
-  word: string
-) {
-  const max = 8;
+/**
+ * Given a list of words, returns a list of words that are the given delete / edit
+ * distance from each word.
+ *
+ * e.g.
+ * For an edit distance of 1, given the word 'the', results would be
+ * 'he', 'te', 'he'
+ *
+ * An edit distance of 2 for 'the' would return the edit distance 1 results
+ * for each of 'he', 'te', 'he' which would be 'e', 'h', 't'
+ */
+export function deleteDistance(
+  distance: number,
+  ...words: Array<string>
+): string[] {
+  const unique: Record<string, number> = {};
 
-  for(let i = max; i >= 4; i-=2) {
-    if(i <= word.length) {
-      return word.substr(0, i - 2);
+  words.forEach(word => {
+    const lowerWord = word.toLowerCase();
+    if(lowerWord !== word) {
+      unique[lowerWord] = 1;
     }
+
+    for(let i = 0; i < word.length; ++i) {
+      const result = word.slice(0, i) + word.slice(i + 1, word.length);
+      unique[result] = 1;
+    }
+  });
+
+  if(distance <= 1) {
+    return Object.keys(unique);
   }
 
-  return word.substr(0, max);
+  return deleteDistance(distance - 1, ...Object.keys(unique));
 }
-
-// export async function fetchWords(
-//   words: string[]
-// ): Promise<SpellCheckResult> {
-//   if(words.length === 0) {
-//     return {};
-//   }
-
-//   const response = await fetch(wordsEndpoint, {
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json'
-//     },
-//     body: JSON.stringify({ words })
-//   });
-
-//   const data: Record<string, 1 | 0> = await response.json();
-
-//   console.log(data);
-
-//   return Object.keys(data).reduce((memo, word) => {
-//     memo[word] = data[word]
-//       ? {
-//         isValid: true
-//       }
-//       : {
-//         isValid: false,
-//         suggestions: [
-//           'aaa', 'bbb', 'ccc'
-//         ]
-//       };
-//     return memo;
-//   }, {} as SpellCheckResult);
-
-//   // const result: string[] = ['This']; //words.slice();
-//   // return words.reduce((memo, word) => {
-//   //   return {
-//   //     ...memo,
-//   //     [word]: result.indexOf(word) > -1
-//   //   };
-//   // }, {} as Record<string, boolean>);
-// }

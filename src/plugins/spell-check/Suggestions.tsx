@@ -30,6 +30,7 @@ export function createSuggestionsComponent(
           ref={focusRef}
           tabIndex={0}
           >
+          { suggestions.length === 0 ? <span>No Suggestions</span> : null }
           { suggestions.map(suggestion => (
             <li className="c_suggestions__item" key={suggestion}>{suggestion}</li>
           ))}

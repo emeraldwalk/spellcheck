@@ -2,7 +2,7 @@ import {
   ContentBlock,
 } from 'draft-js';
 import { Context } from './context';
-import { fetchWords } from './data';
+import { checkSpelling } from './data';
 
 export function createSpellCheckStrategy(
   getContext: () => Context
@@ -23,8 +23,12 @@ export function createSpellCheckStrategy(
     let match;
     const toFetch: string[] = [];
     while((match = regEx.exec(text))) {
-      const word = match[1];
       const start = match.index;
+      const word = match[1];
+      //  = start === 0
+      //   ? match[1].toLowerCase() // ignore casing on first word TODO: need to account for sentence starts
+      //   : match[1];
+
       const end = start + word.length;
 
       if(word in context.words) {
@@ -41,14 +45,12 @@ export function createSpellCheckStrategy(
     if(toFetch.length > 0) {
       timeout = setTimeout(async () => {
 
-        const result = await fetchWords(toFetch);
+        const result = await checkSpelling(toFetch);
 
         context.words = {
           ...context.words,
           ...result
         };
-
-        console.log(context.words);
 
         getContext().reapplyDecorators();
       }, 1000);

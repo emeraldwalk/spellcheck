@@ -69,8 +69,6 @@ export async function fetchSuggestions(
     // }
   }
 
-  console.log('search:', search);
-
   const queries: AWS.DynamoDB.DocumentClient.QueryInput[] = search
     .map(word => ({
       ExpressionAttributeValues: {
@@ -92,12 +90,9 @@ export async function fetchSuggestions(
     .flat()
     .forEach((item: { tk: string }) => {
       if('tk' in item) {
-        console.log(item.tk);
         suggestions[item.tk] = 1;
       }
     });
-
-  console.log(suggestions);
 
   return Object.keys(suggestions);
 }

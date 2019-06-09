@@ -2,10 +2,11 @@ module 'draft-js-plugins-editor' {
   import React from 'react';
   import {
     CompositeDecorator,
+    ContentBlock,
     DraftEditorCommand,
     Editor,
     EditorProps,
-    EditorState
+    EditorState,
   } from 'draft-js';
 
   interface PluginEditorProps extends EditorProps {
@@ -33,8 +34,13 @@ module 'draft-js-plugins-editor' {
 
   type Decorator = FirstArgument<typeof CompositeDecorator>;
 
+  export type DecoratorComponentChild = React.ReactElement<{
+    block: ContentBlock,
+    start: number
+  }>;
+
   export interface DecoratorComponentProps {
-    children: React.ReactNode,
+    children: [ DecoratorComponentChild ],
     contentState: ContentState,
     decoratedText: string,
     getEditorState: () => EditorState,

@@ -8,6 +8,10 @@ body {
   font-family: 'Open Sans', sans-serif;
 }
 
+.c_app {
+  margin: 10px;
+}
+
 .c_editor {
   border: 1px solid #ccc;
 }
@@ -17,11 +21,33 @@ body {
 }
 
 .c_suggestions {
+  background-color: #666;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
   outline: none;
-  &__item {
+  position: absolute;
+  width: 200px;
+  &__list {
+    margin-top: 10px;
+    max-height: 9em;
+    overflow-y: scroll;
+  }
+  &__item, &__none, &__static {
+    height: 1em;
+    padding: .25em .5em;
+  }
+  &__item, &__static {
     &:hover {
       background-color: rgb(22, 154, 216);
       color: #fff;
     }
+  }
+  &__static {
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-top: 1px solid #fff;
+    margin-top: .5em;
+    padding: .5em;
   }
 }

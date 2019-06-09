@@ -3,11 +3,11 @@ import { reapplyDecorators } from '../utils';
 
 export type Context = ReturnType<typeof createContext>;
 export type SpellCheckResult = Record<string, boolean>;
-// export type SpellCheckResult = Record<
-//   string,
-//   { isValid: true } | { isValid: false, suggestions: string[] }
-// >;
 
+/**
+ * Creates a context instance that can be shared betwen components and
+ * services in the plugin.
+ */
 export function createContext(
   initContext: PluginContext
 ) {

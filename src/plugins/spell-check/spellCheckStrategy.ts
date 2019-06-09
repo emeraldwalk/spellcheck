@@ -2,7 +2,7 @@ import {
   ContentBlock,
 } from 'draft-js';
 import { Context } from './context';
-import { checkSpelling } from './data';
+import { bulkGetExactMatches } from './data';
 
 export function createSpellCheckStrategy(
   getContext: () => Context
@@ -32,8 +32,7 @@ export function createSpellCheckStrategy(
       const end = start + word.length;
 
       if(word in context.words) {
-        const wordDetails = context.words[word];
-        if(!wordDetails.isValid) {
+        if(!context.words[word]) {
           callback(start, end);
         }
       }
@@ -45,11 +44,11 @@ export function createSpellCheckStrategy(
     if(toFetch.length > 0) {
       timeout = setTimeout(async () => {
 
-        const result = await checkSpelling(toFetch);
+        const results = await bulkGetExactMatches(toFetch);
 
         context.words = {
           ...context.words,
-          ...result
+          ...results
         };
 
         getContext().reapplyDecorators();

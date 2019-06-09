@@ -3,6 +3,7 @@ import {
   DecoratorComponentProps,
 } from 'draft-js-plugins-editor';
 import { Context } from './context';
+import { fetchSuggestions } from './data';
 
 export interface SpellCheckDecoratorProps extends DecoratorComponentProps {
 }
@@ -19,10 +20,14 @@ export function createSpellCheckDecoratorComponent(
     return (
       <span
         className="c_spell-check-decorator"
-        onClick={e => {
-          const word = context.words[e.currentTarget.innerText];
-          if(word && !word.isValid) {
-            context.showSuggestions!(word.suggestions)
+        onContextMenu={async e => {
+          e.preventDefault();
+
+          const miss = e.currentTarget.innerText;
+          const isValid = context.words[miss];
+          if(!isValid) {
+            context.suggestions[miss] = context.suggestions[miss] || await fetchSuggestions(miss);
+            context.showSuggestions!(context.suggestions[miss].slice(0, 10));
           }
         }}
         ref={targetRef}>{children}

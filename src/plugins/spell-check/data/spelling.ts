@@ -91,8 +91,13 @@ export async function fetchSuggestions(
   results
     .map(r => r.Items)
     .flat()
-    .forEach((item: { tk: string }) => {
-      if('tk' in item) {
+    .forEach((item: { pk: string, sk: string, tk: string }) => {
+      // account for misspellings with additional words, there
+      // is potential that the deleteDistance candidate was the actual word
+      if(item.pk === item.sk) {
+        suggestions[item.pk] = 1;
+      }
+      else if('tk' in item) {
         suggestions[item.tk] = 1;
       }
     });

@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Context, ShowSuggestionArgs } from '../context';
 import { replaceText } from '../../utils';
-import { setInPersonalDictionary } from '../data/data';
+import { setInPersonalDictionary } from '../data/personal';
 
 export interface SuggestionsProps {
 }

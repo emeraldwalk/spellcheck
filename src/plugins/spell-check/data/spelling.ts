@@ -12,6 +12,9 @@ const client = new AWS.DynamoDB.DocumentClient();
 
 /**
  * Look for exact spellings of given words.
+ * TODO: DynamoDB batch get has a limit of 100 results, so will
+ * need to account for this via paging results for longer text
+ * content.
  */
 export async function bulkGetExactMatches(
   words: string[]
@@ -96,4 +99,3 @@ export async function fetchSuggestions(
 
   return Object.keys(suggestions);
 }
-

@@ -3,7 +3,7 @@ import {
 } from 'draft-js';
 import { Context } from '../context';
 import { bulkGetExactMatches } from '../data/spelling';
-import { getPersonalDictionary } from '../data/data';
+import { getPersonalDictionary } from '../data/personal';
 
 /**
  * Factory for spellcheck strategy.

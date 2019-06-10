@@ -2,15 +2,17 @@ import React, { useRef, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Context, ShowSuggestionArgs } from '../context';
 import { replaceText } from '../../utils';
-import { setInPersonalDictionary } from '../data/personal';
 
 export interface SuggestionsProps {
+  putInDictionary: (word: string) => void
 }
 
 export function createSuggestionsComponent(
   getContext: () => Context
 ) {
-  const Suggestions: React.FC<SuggestionsProps> = () => {
+  const Suggestions: React.FC<SuggestionsProps> = ({
+    putInDictionary
+  }) => {
     const [suggestionArgs, setSuggestionArgs] = useState<ShowSuggestionArgs>();
 
     const focusRef = useRef<HTMLDivElement>(null);
@@ -60,7 +62,7 @@ export function createSuggestionsComponent(
         <div
           className="c_suggestions__static"
           onClick={() => {
-            setInPersonalDictionary(text);
+            putInDictionary(text);
             setSuggestionArgs(undefined);
             context.reapplyDecorators();
           }}

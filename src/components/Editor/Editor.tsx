@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { EditorState } from 'draft-js';
 import DraftEditor from 'draft-js-plugins-editor';
-import { createSpellCheckPlugin } from '../../plugins/spell-check';
-
-const spellCheckPlugin = createSpellCheckPlugin();
+import { SpellCheckPlugin } from '../../plugins/spell-check';
 
 export interface EditorProps {
+  putInDictionary: (word: string) => void,
+  spellCheckPlugin: SpellCheckPlugin
 }
 
-const Editor: React.SFC<EditorProps> = () => {
+const Editor: React.SFC<EditorProps> = ({
+  putInDictionary,
+  spellCheckPlugin
+}) => {
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
 
   return (
@@ -19,7 +22,9 @@ const Editor: React.SFC<EditorProps> = () => {
         placeholder="Enter content..."
         plugins={[spellCheckPlugin]}
       />
-      <spellCheckPlugin.SuggestionsComponent/>
+      <spellCheckPlugin.SuggestionsComponent
+        putInDictionary={putInDictionary}
+      />
     </div>
   );
 };

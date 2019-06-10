@@ -3,13 +3,13 @@ import {
 } from 'draft-js';
 import { Context } from '../context';
 import { bulkGetExactMatches } from '../data/spelling';
-import { getPersonalDictionary } from '../data/personal';
 
 /**
  * Factory for spellcheck strategy.
  */
 export function createSpellCheckStrategy(
-  getContext: () => Context
+  getContext: () => Context,
+  getPersonalDictionary: () => Record<string, number>
 ) {
   let timeout: Record<string, ReturnType<typeof setTimeout>> = {
   };
@@ -26,16 +26,15 @@ export function createSpellCheckStrategy(
     const regEx = /([\w]+)([\s.]|$)/g;
     const text = contentBlock.getText();
 
-    const personalDict = getPersonalDictionary();
-
     let match;
     const toFetch: string[] = [];
+
     while((match = regEx.exec(text))) {
       const start = match.index;
       const word = match[1];
       const end = start + word.length;
 
-      if(word in personalDict) {
+      if(word in getPersonalDictionary()) {
         continue;
       }
       // if word has already been checked

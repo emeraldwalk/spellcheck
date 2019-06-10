@@ -9,12 +9,17 @@ import {
 import { createSpellCheckStrategy } from './strategies/spellCheckStrategy';
 import { Context, createContext } from './context';
 
-const createSpellCheckPlugin = (): Plugin & { SuggestionsComponent: ReturnType<typeof createSuggestionsComponent> } => {
+export type SpellCheckPlugin = ReturnType<typeof createSpellCheckPlugin>;
+
+function createSpellCheckPlugin(
+  getPersonalDictionary: () => Record<string, number>
+): Plugin & { SuggestionsComponent: ReturnType<typeof createSuggestionsComponent> } {
 
   let context: Context;
 
   const spellCheckStrategy = createSpellCheckStrategy(
-    () => context
+    () => context,
+    getPersonalDictionary
   );
 
   const decorators = [

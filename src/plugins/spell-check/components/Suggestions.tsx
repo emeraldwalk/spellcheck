@@ -1,8 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { SelectionState } from 'draft-js';
-import { Context, ShowSuggestionArgs } from './context';
-import { replaceText } from '../utils';
+import { Context, ShowSuggestionArgs } from '../context';
+import { replaceText } from '../../utils';
+import { setInPersonalDictionary } from '../data/data';
 
 export interface SuggestionsProps {
 }
@@ -31,7 +31,7 @@ export function createSuggestionsComponent(
       return null;
     }
 
-    const { x, y, selection, suggestions } = suggestionArgs;
+    const { x, y, selection, suggestions, text } = suggestionArgs;
 
     return ReactDOM.createPortal(
       <div
@@ -57,7 +57,14 @@ export function createSuggestionsComponent(
             }}>{suggestion}</li>
           ))}
         </ul>
-        <div className="c_suggestions__static">Add to Dictionary</div>
+        <div
+          className="c_suggestions__static"
+          onClick={() => {
+            setInPersonalDictionary(text);
+            setSuggestionArgs(undefined);
+            context.reapplyDecorators();
+          }}
+          >Add to Dictionary</div>
       </div>, document.body
     );
   };

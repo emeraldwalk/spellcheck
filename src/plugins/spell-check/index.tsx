@@ -2,9 +2,11 @@ import {
   Plugin, PluginContext,
 } from 'draft-js-plugins-editor';
 
-import { createSpellCheckDecoratorComponent } from './SpellCheckDecorator';
-import { createSpellCheckStrategy } from './spellCheckStrategy';
-import { createSuggestionsComponent } from './Suggestions';
+import {
+  createSpellCheckDecoratorComponent,
+  createSuggestionsComponent
+} from './components';
+import { createSpellCheckStrategy } from './strategies/spellCheckStrategy';
 import { Context, createContext } from './context';
 
 const createSpellCheckPlugin = (): Plugin & { SuggestionsComponent: ReturnType<typeof createSuggestionsComponent> } => {

@@ -16,6 +16,7 @@ const Editor: React.SFC<EditorProps> = () => {
       <DraftEditor
         editorState={editorState}
         onChange={editorState => setEditorState(editorState)}
+        placeholder="Enter content..."
         plugins={[spellCheckPlugin]}
       />
       <spellCheckPlugin.SuggestionsComponent/>

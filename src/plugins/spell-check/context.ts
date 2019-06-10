@@ -8,6 +8,7 @@ export interface ShowSuggestionArgs {
   y: number;
   selection: SelectionState;
   suggestions: string[];
+  text: string;
 }
 export type SpellCheckResult = Record<string, boolean>;
 export interface ShowSuggestions {

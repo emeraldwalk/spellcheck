@@ -2,9 +2,9 @@ import React, { useRef } from 'react';
 import {
   DecoratorComponentProps,
 } from 'draft-js-plugins-editor';
-import { Context } from './context';
-import { fetchSuggestions } from './data';
-import { calculatePosition, getDecoratorRange, createSelectionState } from '../utils';
+import { Context } from '../context';
+import { fetchSuggestions } from '../data/spelling';
+import { calculatePosition, getDecoratorRange, createSelectionState } from '../../utils';
 
 export interface SpellCheckDecoratorProps extends DecoratorComponentProps {
 }
@@ -47,7 +47,8 @@ export function createSpellCheckDecoratorComponent(
               {
                 ...calculatePosition(targetRef.current!),
                 selection,
-                suggestions: context.suggestions[miss].slice(0, 10)
+                suggestions: context.suggestions[miss].slice(0, 10),
+                text: decoratedText
               },
             );
           }

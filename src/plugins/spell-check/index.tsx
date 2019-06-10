@@ -8,6 +8,7 @@ import {
 } from './components';
 import { createSpellCheckStrategy } from './strategies/spellCheckStrategy';
 import { Context, createContext } from './context';
+import { bulkGetExactMatches } from './data/spelling';
 
 export type SpellCheckPlugin = ReturnType<typeof createSpellCheckPlugin>;
 
@@ -43,7 +44,8 @@ function createSpellCheckPlugin(
     // },
     decorators,
     initialize: (ctx: PluginContext) => {
-      context = createContext(ctx);
+      // seeding with a few common words (mostly to make an initial request to Cognito to make subsequent calls faster)
+      context = createContext(ctx, bulkGetExactMatches(['a', 'an', 'the']));
     },
     // keyBindingFn: e => {
     //   if(e.metaKey && e.key === 'h') {

@@ -19,7 +19,7 @@ const Editor: React.SFC<EditorProps> = ({
       <DraftEditor
         editorState={editorState}
         onChange={editorState => setEditorState(editorState)}
-        placeholder="Enter content..."
+        placeholder="Enter content. Right-click on misspelled words to show context menu."
         plugins={[spellCheckPlugin]}
       />
       <spellCheckPlugin.SuggestionsComponent

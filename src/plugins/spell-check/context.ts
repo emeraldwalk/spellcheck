@@ -20,7 +20,8 @@ export interface ShowSuggestions {
  * services in the plugin.
  */
 export function createContext(
-  initContext: PluginContext
+  initContext: PluginContext,
+  initialDictionary: Promise<SpellCheckResult>
 ) {
   const context = {
     ...initContext,
@@ -31,6 +32,13 @@ export function createContext(
     suggestions: {} as Record<string, string[]>,
     words: {} as SpellCheckResult,
   };
+
+  initialDictionary.then(seed => {
+    context.words = {
+      ...context.words,
+      ...seed
+    }
+  })
 
   return context;
 }

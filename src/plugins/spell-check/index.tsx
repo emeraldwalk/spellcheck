@@ -1,3 +1,4 @@
+import { RichUtils } from 'draft-js';
 import {
   Plugin, PluginContext,
 } from 'draft-js-plugins-editor';
@@ -58,6 +59,13 @@ function createSpellCheckPlugin(
     //     return true;
     //   }
     // },
+    handleKeyCommand: (cmd, editorState, { setEditorState }) => {
+      const newEditorState = RichUtils.handleKeyCommand(editorState, cmd);
+      if(newEditorState) {
+        setEditorState(newEditorState);
+        return true;
+      }
+    },
     // onChange: function (editorState) {
     //   return editorState;
     // }
